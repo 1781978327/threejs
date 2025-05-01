@@ -82,6 +82,7 @@ class SceneManager {
                     console.error('地面纹理加载失败:', error);
                     // 使用默认颜色作为备选
                     console.log('使用默认颜色作为地面纹理');
+                    groundMaterial.color.set(0x90EE90);
                 }
             );
 

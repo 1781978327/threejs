@@ -35,6 +35,12 @@ class Building extends Base {
             },
             (error) => {
                 console.error('墙体纹理加载失败:', error);
+                // 使用默认颜色作为备选
+                this.material = new THREE.MeshStandardMaterial({
+                    color: this.color || 0x808080,
+                    roughness: 0.7,
+                    metalness: 0.3
+                });
             }
         );
         
