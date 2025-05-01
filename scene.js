@@ -67,7 +67,7 @@ class SceneManager {
             
             // 加载地面纹理
             const mapTexture = textureLoader.load(
-                './images/pic1.jpg',
+                '/images/pic1.jpg',
                 (texture) => {
                     console.log('地面纹理加载成功');
                     texture.wrapS = THREE.RepeatWrapping;
