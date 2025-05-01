@@ -190,122 +190,88 @@ class Enemy extends Base {
         return bullet;
     }
 
+    // 更新子弹
+    updateBullets() {
+        const currentTime = Date.now();
+        this.bullets = this.bullets.filter(bullet => {
+            if (!bullet || !bullet.mesh) return false;
+            
+            // 更新子弹位置
+            bullet.position.x += bullet.velocity.x;
+            bullet.position.y += bullet.velocity.y;
+            bullet.position.z += bullet.velocity.z;
+            bullet.mesh.position.copy(bullet.position);
+            
+            // 检查子弹是否超出范围
+            const distance = bullet.position.distanceTo(this.position);
+            if (distance > 1000) {
+                this.scene.remove(bullet.mesh);
+                return false;
+            }
+            
+            // 检查子弹是否击中玩家
+            if (this.character && this.character.instance) {
+                const playerPosition = this.character.instance.position;
+                const bulletToPlayer = bullet.position.distanceTo(playerPosition);
+                
+                if (bulletToPlayer < 10) {
+                    // 击中玩家，造成伤害
+                    this.character.takeDamage(this.bulletDamage);
+                    this.scene.remove(bullet.mesh);
+                    return false;
+                }
+            }
+            
+            return true;
+        });
+    }
+    
     // 发射子弹
     fire() {
-        if (!this.scene) {
-            console.warn('场景未设置，无法发射子弹');
+        if (!this.isInitialized || !this.instance || this.health <= 0) {
             return;
         }
-
+        
         const currentTime = Date.now();
         if (currentTime - this.lastFireTime < this.fireInterval) {
             return;
         }
         
-        this.lastFireTime = currentTime;
-        console.log('敌人发射子弹');
-        console.log('敌人位置:', this.instance.position);
-        
-        // 创建8颗子弹
-        for (let i = 0; i < this.bulletCount; i++) {
-            const bullet = this.createBullet();
-            if (!bullet) continue;
+        if (this.character && this.character.instance) {
+            const playerPosition = this.character.instance.position.clone();
+            const enemyPosition = this.instance.position.clone();
             
-            // 计算发射角度（45度间隔）
-            const angle = (i * Math.PI * 2) / this.bulletCount;
-            const direction = new THREE.Vector3(
-                Math.sin(angle),
-                0,
-                Math.cos(angle)
-            );
+            // 计算子弹方向
+            const direction = new THREE.Vector3()
+                .subVectors(playerPosition, enemyPosition)
+                .normalize();
             
-            // 设置发射方向
-            bullet.userData.direction.copy(direction).normalize();
-            bullet.userData.isFired = true;
+            // 添加一些随机偏移，使子弹不是完全直线
+            direction.x += (Math.random() - 0.5) * 0.1;
+            direction.y += (Math.random() - 0.5) * 0.1;
+            direction.z += (Math.random() - 0.5) * 0.1;
+            direction.normalize();
             
-            // 设置初始位置（从腰部发射）
-            const startPosition = this.instance.position.clone();
-            startPosition.y += this.height; // 使用腰部高度
-            bullet.position.copy(startPosition);
+            // 创建子弹
+            const bulletGeometry = new THREE.SphereGeometry(1, 8, 8);
+            const bulletMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+            const bulletMesh = new THREE.Mesh(bulletGeometry, bulletMaterial);
             
-            // 让子弹朝向发射方向
-            bullet.lookAt(
-                bullet.position.x + bullet.userData.direction.x,
-                bullet.position.y + bullet.userData.direction.y,
-                bullet.position.z + bullet.userData.direction.z
-            );
+            // 设置子弹初始位置
+            bulletMesh.position.copy(enemyPosition);
+            bulletMesh.position.y += 5; // 从敌人上方发射
             
-            console.log('子弹初始位置:', bullet.position);
-        }
-    }
-
-    // 更新子弹
-    updateBullets() {
-        if (!this.scene) {
-            console.log('场景未设置');
-            return;
-        }
-
-        // 检查玩家是否存在
-        if (!this.scene.character) {
-            console.log('玩家不存在');
-            return;
-        }
-
-        // 输出玩家当前位置
-        const playerPos = this.scene.character.instance ? this.scene.character.instance.position : null;
-        if (playerPos) {
-            console.log('\n========== 玩家当前位置 ==========');
-            console.log(`x: ${playerPos.x.toFixed(2)}`);
-            console.log(`y: ${playerPos.y.toFixed(2)}`);
-            console.log(`z: ${playerPos.z.toFixed(2)}`);
-            console.log('==================================\n');
-        } else {
-            console.log('无法获取玩家位置');
-            return;
-        }
-
-        // 使用倒序遍历，避免删除元素时影响索引
-        for (let i = this.bullets.length - 1; i >= 0; i--) {
-            const bullet = this.bullets[i];
-            if (bullet.userData.isFired) {
-                // 移动子弹
-                const moveStep = bullet.userData.direction.clone().multiplyScalar(bullet.userData.speed);
-                bullet.position.add(moveStep);
-                
-                // 检查是否击中玩家
-                if (playerPos) {
-                    // 计算三个坐标轴的距离
-                    const dx = Math.abs(bullet.position.x - playerPos.x);
-                    const dy = Math.abs(bullet.position.y - playerPos.y);
-                    const dz = Math.abs(bullet.position.z - playerPos.z);
-                    
-                    // 输出位置信息
-                    console.log('\n========== 子弹检测信息 ==========');
-                    console.log(`子弹位置: x=${bullet.position.x.toFixed(2)}, y=${bullet.position.y.toFixed(2)}, z=${bullet.position.z.toFixed(2)}`);
-                    console.log(`玩家位置: x=${playerPos.x.toFixed(2)}, y=${playerPos.y.toFixed(2)}, z=${playerPos.z.toFixed(2)}`);
-                    console.log(`距离差值: dx=${dx.toFixed(2)}, dy=${dy.toFixed(2)}, dz=${dz.toFixed(2)}`);
-                    console.log('==================================\n');
-                    
-                    // 如果三个坐标轴的距离都小于3个单位，认为击中
-                    if (dx < 3 && dy < 3 && dz < 3) {
-                        console.log('玩家被击中！');
-                        // 减少玩家血量
-                        this.scene.character.takeDamage(bullet.userData.damage);
-                        // 移除子弹
-                        this.scene.remove(bullet);
-                        this.bullets.splice(i, 1);
-                        continue;
-                    }
-                }
-                
-                // 检查是否超出范围
-                const distance = bullet.position.distanceTo(this.instance.position);
-                if (distance > 100) {
-                    this.scene.remove(bullet);
-                    this.bullets.splice(i, 1);
-                }
-            }
+            // 设置子弹速度
+            const bullet = {
+                mesh: bulletMesh,
+                position: bulletMesh.position.clone(),
+                velocity: direction.multiplyScalar(this.fireSpeed)
+            };
+            
+            this.bullets.push(bullet);
+            this.scene.add(bulletMesh);
+            
+            this.lastFireTime = currentTime;
         }
     }
 

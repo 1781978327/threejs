@@ -147,9 +147,13 @@ class YunYing extends Base {
                                             }
                                         } catch (error) {
                                             console.error('设置动画失败:', error);
+                                            // 即使动画设置失败，也创建基本的动画混合器
+                                            this.mixer = new THREE.AnimationMixer(this.model);
                                         }
                                     } else {
                                         console.warn('模型没有动画数据');
+                                        // 即使没有动画数据，也创建基本的动画混合器
+                                        this.mixer = new THREE.AnimationMixer(this.model);
                                     }
 
                                     // 标记初始化完成

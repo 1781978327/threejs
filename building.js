@@ -113,23 +113,52 @@ class TextureMarker extends Base {
         
         // 加载贴图
         const textureLoader = new THREE.TextureLoader();
-        const texture = textureLoader.load(this.texturePath);
+        textureLoader.setCrossOrigin('anonymous'); // 添加跨域支持
         
-        // 创建材质
-        this.material = new THREE.MeshBasicMaterial({
-            map: texture,
-            transparent: true,
-            side: THREE.DoubleSide
-        });
-
-        // 创建网格
-        this.instance = new THREE.Mesh(this.geometry, this.material);
-        
-        // 设置位置
-        this.setPosition(this.position.x, this.position.y, this.position.z);
-        
-        // 旋转贴图使其面向相机
-        this.instance.rotation.x = -Math.PI / 2;
+        const texture = textureLoader.load(
+            this.texturePath,
+            (texture) => {
+                console.log('贴图加载成功:', this.texturePath);
+                // 创建材质
+                this.material = new THREE.MeshBasicMaterial({
+                    map: texture,
+                    transparent: true,
+                    side: THREE.DoubleSide
+                });
+                
+                // 创建网格
+                this.instance = new THREE.Mesh(this.geometry, this.material);
+                
+                // 设置位置
+                this.setPosition(this.position.x, this.position.y, this.position.z);
+                
+                // 旋转贴图使其面向相机
+                this.instance.rotation.x = -Math.PI / 2;
+            },
+            (xhr) => {
+                const percentComplete = (xhr.loaded / xhr.total) * 100;
+                console.log('贴图加载进度:', percentComplete.toFixed(2) + '%');
+            },
+            (error) => {
+                console.error('贴图加载失败:', error);
+                // 使用默认颜色作为备选
+                console.log('使用默认颜色作为贴图');
+                this.material = new THREE.MeshBasicMaterial({
+                    color: 0xff0000,
+                    transparent: true,
+                    side: THREE.DoubleSide
+                });
+                
+                // 创建网格
+                this.instance = new THREE.Mesh(this.geometry, this.material);
+                
+                // 设置位置
+                this.setPosition(this.position.x, this.position.y, this.position.z);
+                
+                // 旋转贴图使其面向相机
+                this.instance.rotation.x = -Math.PI / 2;
+            }
+        );
     }
 }
 

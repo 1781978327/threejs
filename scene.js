@@ -42,8 +42,13 @@ class SceneManager {
 
     // 初始化场景
     async init() {
-        if (this.isInitialized || this.isInitializing) {
-            console.warn('场景已经初始化或正在初始化');
+        if (this.isInitialized) {
+            console.warn('场景已经初始化完成');
+            return;
+        }
+        
+        if (this.isInitializing) {
+            console.warn('场景正在初始化中，请等待...');
             return;
         }
 
@@ -58,10 +63,27 @@ class SceneManager {
 
             // 添加地图纹理
             const textureLoader = new THREE.TextureLoader();
-            const mapTexture = textureLoader.load('./images/pic1.jpg');
-            mapTexture.wrapS = THREE.RepeatWrapping;
-            mapTexture.wrapT = THREE.RepeatWrapping;
-            mapTexture.repeat.set(1, 1);
+            textureLoader.setCrossOrigin('anonymous'); // 添加跨域支持
+            
+            // 加载地面纹理
+            const mapTexture = textureLoader.load(
+                './images/pic1.jpg',
+                (texture) => {
+                    console.log('地面纹理加载成功');
+                    texture.wrapS = THREE.RepeatWrapping;
+                    texture.wrapT = THREE.RepeatWrapping;
+                    texture.repeat.set(1, 1);
+                },
+                (xhr) => {
+                    const percentComplete = (xhr.loaded / xhr.total) * 100;
+                    console.log('地面纹理加载进度:', percentComplete.toFixed(2) + '%');
+                },
+                (error) => {
+                    console.error('地面纹理加载失败:', error);
+                    // 使用默认颜色作为备选
+                    console.log('使用默认颜色作为地面纹理');
+                }
+            );
 
             // 创建地面
             const groundGeometry = new THREE.PlaneGeometry(1000, 1000);
@@ -148,6 +170,7 @@ class SceneManager {
             window.addEventListener('resize', () => this.onWindowResize());
 
             this.isInitialized = true;
+            this.isInitializing = false;
             console.log('场景初始化完成');
 
             // 初始化完成后再开始动画循环
@@ -155,6 +178,7 @@ class SceneManager {
         } catch (error) {
             console.error('场景初始化失败:', error);
             this.isInitializing = false;
+            throw error; // 抛出错误以便上层处理
         }
     }
 
