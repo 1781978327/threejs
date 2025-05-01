@@ -22,7 +22,7 @@ class Building extends Base {
         textureLoader.setCrossOrigin('anonymous'); // 添加跨域支持
         
         const wallTexture = textureLoader.load(
-            '/images/floor.png',
+            'floor.png',
             (texture) => {
                 console.log('墙体纹理加载成功');
                 texture.wrapS = THREE.RepeatWrapping;

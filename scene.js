@@ -67,7 +67,7 @@ class SceneManager {
             
             // 加载地面纹理
             const mapTexture = textureLoader.load(
-                '/images/pic1.jpg',
+                'pic1.jpg',
                 (texture) => {
                     console.log('地面纹理加载成功');
                     texture.wrapS = THREE.RepeatWrapping;
@@ -104,7 +104,10 @@ class SceneManager {
             this.camera.position.set(0, 100, 200);
             
             // 创建WebGL渲染器
-            this.renderer = new THREE.WebGLRenderer({ antialias: true });
+            this.renderer = new THREE.WebGLRenderer({ 
+                antialias: true,
+                willReadFrequently: true 
+            });
             this.renderer.setSize(window.innerWidth, window.innerHeight);
             this.renderer.shadowMap.enabled = true;
             this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
