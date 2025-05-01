@@ -27,8 +27,6 @@ class YunYing extends Base {
 
         this.initPromise = (async () => {
             try {
-                console.log('开始加载云樱模型:', this.modelPath);
-                
                 // 创建 FBX 加载器
                 const loader = new THREE.FBXLoader();
                 
@@ -53,11 +51,6 @@ class YunYing extends Base {
                                 return;
                             }
                             
-                            console.log('云樱模型加载成功');
-                            console.log('模型原始尺寸:', object.scale);
-                            console.log('模型原始位置:', object.position);
-                            console.log('模型原始旋转:', object.rotation);
-                            
                             // 直接设置模型的缩放
                             object.scale.set(200, 200, 200);
                             object.position.y = 10;
@@ -76,40 +69,28 @@ class YunYing extends Base {
                             this.model.traverse((child) => {
                                 if (child.isSkinnedMesh) {
                                     hasSkeleton = true;
-                                    console.log('模型包含骨骼系统');
                                 }
                             });
                             
-                            if (!hasSkeleton) {
-                                console.warn('模型不包含骨骼系统，可能无法播放动画');
-                            }
-                            
                             // 设置位置
                             this.setPosition(this.position.x, this.position.y + 5, this.position.z);
-                            console.log('模型位置设置完成:', this.position);
                             
                             // 设置旋转
                             this.setRotation(this.rotation.x, this.rotation.y, this.rotation.z);
-                            console.log('模型旋转设置完成:', this.rotation);
 
                             // 遍历模型中的所有网格
-                            let meshCount = 0;
                             this.model.traverse((child) => {
                                 if (child.isMesh) {
-                                    meshCount++;
                                     // 启用阴影
                                     child.castShadow = true;
                                     child.receiveShadow = true;
                                 }
                             });
-                            console.log('模型网格数量:', meshCount);
 
                             // 创建碰撞盒
                             this.boundingBox = new THREE.Box3().setFromObject(this.model);
-                            console.log('碰撞盒创建完成');
 
                             // 加载舞蹈动画
-                            console.log('开始加载舞蹈动画:', this.dancePath);
                             const danceFileName = this.dancePath.substring(this.dancePath.lastIndexOf('/') + 1);
                             
                             // 创建新的加载器实例用于加载动画
@@ -121,62 +102,49 @@ class YunYing extends Base {
                                 danceFileName,
                                 (danceObject) => {
                                     if (!danceObject) {
-                                        console.warn('舞蹈动画加载失败：返回的对象为空');
                                         resolve(this.model);
                                         return;
                                     }
                                     
-                                    console.log('舞蹈动画加载成功');
-                                    
                                     // 设置动画
                                     if (danceObject.animations && danceObject.animations.length) {
                                         try {
-                                            console.log('开始设置动画...');
                                             this.mixer = new THREE.AnimationMixer(this.model);
                                             danceObject.animations.forEach((clip) => {
                                                 if (clip && clip.name) {
                                                     const action = this.mixer.clipAction(clip);
                                                     this.animations[clip.name] = action;
-                                                    console.log('添加动画:', clip.name);
                                                 }
                                             });
                                             // 默认播放第一个动画
                                             if (danceObject.animations[0] && danceObject.animations[0].name) {
                                                 this.playAnimation(danceObject.animations[0].name);
-                                                console.log('播放默认动画:', danceObject.animations[0].name);
                                             }
                                         } catch (error) {
-                                            console.error('设置动画失败:', error);
                                             // 即使动画设置失败，也创建基本的动画混合器
                                             this.mixer = new THREE.AnimationMixer(this.model);
                                         }
                                     } else {
-                                        console.warn('模型没有动画数据');
                                         // 即使没有动画数据，也创建基本的动画混合器
                                         this.mixer = new THREE.AnimationMixer(this.model);
                                     }
 
                                     // 标记初始化完成
                                     this.isInitialized = true;
-                                    console.log('云樱初始化完成');
                                     resolve(this.model);
                                 },
                                 (xhr) => {
-                                    const percentComplete = (xhr.loaded / xhr.total) * 100;
-                                    console.log('舞蹈动画加载进度:', percentComplete.toFixed(2) + '%');
+                                    // 加载进度回调，不输出日志
                                 },
                                 (error) => {
-                                    console.error('加载舞蹈动画失败:', error);
                                     resolve(this.model); // 即使动画加载失败，也返回模型
                                 }
                             );
                         },
                         (xhr) => {
-                            const percentComplete = (xhr.loaded / xhr.total) * 100;
-                            console.log('模型加载进度:', percentComplete.toFixed(2) + '%');
+                            // 加载进度回调，不输出日志
                         },
                         (error) => {
-                            console.error('加载云樱模型失败:', error);
                             reject(error);
                         }
                     );
@@ -184,7 +152,6 @@ class YunYing extends Base {
 
                 return model;
             } catch (error) {
-                console.error('加载云樱模型失败:', error);
                 this.isInitialized = false;
                 throw error;
             }
@@ -196,7 +163,6 @@ class YunYing extends Base {
     // 播放动画
     playAnimation(name, duration = 0.2) {
         if (!this.mixer) {
-            console.warn('动画混合器未初始化');
             return;
         }
         
@@ -210,8 +176,6 @@ class YunYing extends Base {
                 }
                 this.currentAction.reset().fadeIn(duration).play();
             }
-        } else {
-            console.warn('动画不存在:', name);
         }
     }
 
@@ -227,7 +191,7 @@ class YunYing extends Base {
             try {
                 this.mixer.update(delta);
             } catch (error) {
-                console.error('更新动画失败:', error);
+                // 更新动画失败，不输出日志
             }
         }
     }

@@ -118,7 +118,6 @@ class TextureMarker extends Base {
         const texture = textureLoader.load(
             this.texturePath,
             (texture) => {
-                console.log('贴图加载成功:', this.texturePath);
                 // 创建材质
                 this.material = new THREE.MeshBasicMaterial({
                     map: texture,
@@ -136,13 +135,10 @@ class TextureMarker extends Base {
                 this.instance.rotation.x = -Math.PI / 2;
             },
             (xhr) => {
-                const percentComplete = (xhr.loaded / xhr.total) * 100;
-                console.log('贴图加载进度:', percentComplete.toFixed(2) + '%');
+                // 加载进度回调，不输出日志
             },
             (error) => {
-                console.error('贴图加载失败:', error);
                 // 使用默认颜色作为备选
-                console.log('使用默认颜色作为贴图');
                 this.material = new THREE.MeshBasicMaterial({
                     color: 0xff0000,
                     transparent: true,

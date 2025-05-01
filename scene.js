@@ -515,11 +515,9 @@ class SceneManager {
         if (this.enemies && this.enemies.length > 0) {
             const currentTime = Date.now();
             if (!this.lastEnemyStatusTime || currentTime - this.lastEnemyStatusTime >= 3000) {
-                console.log('更新敌人状态，当前敌人数量:', this.enemies.length);
                 this.enemies.forEach((enemy, index) => {
                     if (enemy) {
                         enemy.update(delta);
-                        console.log(`敌人${index}当前血量:`, enemy.health);
                     }
                 });
                 this.lastEnemyStatusTime = currentTime;

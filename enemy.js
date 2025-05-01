@@ -51,21 +51,14 @@ class Enemy extends Base {
     // 设置场景
     setScene(scene) {
         if (!scene) {
-            console.error('场景对象为空');
             return;
         }
         this.scene = scene;
-        if (scene.character) {
-            console.log('场景中包含玩家对象');
-        } else {
-            console.warn('场景中未找到玩家对象');
-        }
     }
 
     // 设置建筑物管理器
     setBuildingManager(manager) {
         this.buildingManager = manager;
-        console.log('已设置建筑物管理器');
     }
 
     // 设置相机
@@ -82,8 +75,6 @@ class Enemy extends Base {
         // 创建新的初始化Promise
         this.initPromise = (async () => {
             try {
-                console.log('开始创建敌人方块...');
-                
                 // 创建方块几何体
                 const geometry = new THREE.BoxGeometry(1, 1, 1);
                 const material = new THREE.MeshPhongMaterial({ color: 0xff0000 });
@@ -91,15 +82,12 @@ class Enemy extends Base {
                 
                 // 设置位置
                 this.setPosition(this.position.x, this.position.y, this.position.z);
-                console.log('方块位置设置完成:', this.position);
                 
                 // 设置缩放
                 this.setScale(this.scale.x, this.scale.y, this.scale.z);
-                console.log('方块缩放设置完成:', this.scale);
                 
                 // 设置旋转
                 this.setRotation(this.rotation.x, this.rotation.y, this.rotation.z);
-                console.log('方块旋转设置完成:', this.rotation);
 
                 // 启用阴影
                 this.instance.castShadow = true;
@@ -107,20 +95,17 @@ class Enemy extends Base {
 
                 // 创建碰撞盒
                 this.boundingBox = new THREE.Box3().setFromObject(this.instance);
-                console.log('碰撞盒创建完成');
 
                 // 设置初始巡逻目标
                 this.setNewPatrolTarget();
                 
                 // 标记初始化完成
                 this.isInitialized = true;
-                console.log('敌人方块创建完成');
                 
                 // 创建血条
                 this.createHealthBar();
                 
             } catch (error) {
-                console.error('创建敌人方块失败:', error);
                 this.isInitialized = false;
                 throw error;
             }
@@ -132,7 +117,6 @@ class Enemy extends Base {
     // 播放动画
     playAnimation(name, duration = 0.2) {
         if (!this.mixer) {
-            console.warn('动画混合器未初始化');
             return;
         }
         
@@ -147,7 +131,6 @@ class Enemy extends Base {
                 this.currentAction.reset().fadeIn(duration).play();
             }
         } else {
-            console.warn('动画不存在:', name);
             // 如果没有找到指定动画，尝试播放第一个可用动画
             const firstAnimation = Object.keys(this.animations)[0];
             if (firstAnimation) {
@@ -159,7 +142,6 @@ class Enemy extends Base {
     // 创建子弹
     createBullet() {
         if (!this.scene) {
-            console.warn('场景未设置，无法创建子弹');
             return null;
         }
 
@@ -312,7 +294,6 @@ class Enemy extends Base {
     // 更新巡逻行为
     updatePatrol(delta) {
         if (!this.targetPosition || !this.instance) {
-            console.warn('目标位置或实例不存在');
             return;
         }
 
@@ -327,7 +308,6 @@ class Enemy extends Base {
 
         const distance = direction.length();
         if (distance < 0.5 || this.changeDirectionTime >= this.directionChangeInterval) {
-            console.log('设置新的巡逻目标');
             this.setNewPatrolTarget();
             return;
         }
@@ -399,8 +379,6 @@ class Enemy extends Base {
         // 随机设置新的方向改变间隔
         this.directionChangeInterval = 8 + Math.random() * 7;
         this.changeDirectionTime = 0;
-        
-        // console.log('新目标位置:', this.targetPosition);
     }
 
     createHealthBar() {
@@ -437,7 +415,6 @@ class Enemy extends Base {
 
     updateHealth(newHealth) {
         this.health = Math.max(0, Math.min(newHealth, this.maxHealth));
-        console.log('敌人血量更新:', this.health);
         
         // 更新血条
         if (this.healthBarElement) {
@@ -448,14 +425,12 @@ class Enemy extends Base {
         }
         
         if (this.health <= 0) {
-            console.log('敌人死亡');
             this.onDeath();
         }
     }
 
     onDeath() {
         // 可以在这里添加敌人死亡时的逻辑
-        console.log('执行死亡逻辑');
         
         // 清理所有子弹
         if (this.bullets && this.bullets.length > 0) {
@@ -465,7 +440,6 @@ class Enemy extends Base {
                 }
             });
             this.bullets = [];
-            console.log('清理所有子弹');
         }
 
         // 例如：播放死亡动画、移除模型等
