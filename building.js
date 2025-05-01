@@ -122,7 +122,7 @@ class Ground extends Base {
 class TextureMarker extends Base {
     constructor(options = {}) {
         super();
-        this.texturePath = options.texturePath || './images/怪物1.png';
+        this.texturePath = options.texturePath || '怪物1.png';
         this.size = options.size || 10;
         this.position = options.position || { x: 0, y: 0.1, z: 0 };
         this.init();
