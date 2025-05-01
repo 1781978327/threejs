@@ -94,7 +94,7 @@ class Ground extends Base {
         
         // 加载草地纹理
         const textureLoader = new THREE.TextureLoader();
-        const grassTexture = textureLoader.load('./images/grass.jpg');
+        const grassTexture = textureLoader.load('grass.jpg');
         grassTexture.wrapS = THREE.RepeatWrapping;
         grassTexture.wrapT = THREE.RepeatWrapping;
         grassTexture.repeat.set(50, 50); // 设置纹理重复次数
