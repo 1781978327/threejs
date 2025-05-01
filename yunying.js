@@ -90,6 +90,9 @@ class YunYing extends Base {
                             // 创建碰撞盒
                             this.boundingBox = new THREE.Box3().setFromObject(this.model);
 
+                            // 创建基本的动画混合器
+                            this.mixer = new THREE.AnimationMixer(this.model);
+
                             // 加载舞蹈动画
                             const danceFileName = this.dancePath.substring(this.dancePath.lastIndexOf('/') + 1);
                             
@@ -109,7 +112,6 @@ class YunYing extends Base {
                                     // 设置动画
                                     if (danceObject.animations && danceObject.animations.length) {
                                         try {
-                                            this.mixer = new THREE.AnimationMixer(this.model);
                                             danceObject.animations.forEach((clip) => {
                                                 if (clip && clip.name) {
                                                     const action = this.mixer.clipAction(clip);
@@ -121,12 +123,8 @@ class YunYing extends Base {
                                                 this.playAnimation(danceObject.animations[0].name);
                                             }
                                         } catch (error) {
-                                            // 即使动画设置失败，也创建基本的动画混合器
-                                            this.mixer = new THREE.AnimationMixer(this.model);
+                                            // 动画设置失败，继续使用基本的动画混合器
                                         }
-                                    } else {
-                                        // 即使没有动画数据，也创建基本的动画混合器
-                                        this.mixer = new THREE.AnimationMixer(this.model);
                                     }
 
                                     // 标记初始化完成

@@ -272,7 +272,7 @@ class Enemy extends Base {
             try {
                 this.mixer.update(delta);
             } catch (error) {
-                console.error('更新动画失败:', error);
+                // 更新动画失败，不输出日志
             }
         }
 

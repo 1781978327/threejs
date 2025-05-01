@@ -121,7 +121,6 @@ class Character extends Base {
     // 播放动画
     playAnimation(name, duration = 0.2) {
         if (!this.mixer) {
-            console.warn('动画混合器未初始化');
             return;
         }
         
@@ -135,8 +134,6 @@ class Character extends Base {
                 }
                 this.currentAction.reset().fadeIn(duration).play();
             }
-        } else {
-            console.warn('动画不存在:', name);
         }
     }
 
