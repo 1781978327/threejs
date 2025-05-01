@@ -19,16 +19,31 @@ class Building extends Base {
         
         // 加载墙体纹理
         const textureLoader = new THREE.TextureLoader();
-        const wallTexture = textureLoader.load('./images/floor.png');
-        wallTexture.wrapS = THREE.RepeatWrapping;
-        wallTexture.wrapT = THREE.RepeatWrapping;
-        wallTexture.repeat.set(this.width/2, this.height/2); // 根据建筑物大小调整纹理重复次数
+        textureLoader.setCrossOrigin('anonymous'); // 添加跨域支持
+        
+        const wallTexture = textureLoader.load(
+            './images/floor.png',
+            (texture) => {
+                console.log('墙体纹理加载成功');
+                texture.wrapS = THREE.RepeatWrapping;
+                texture.wrapT = THREE.RepeatWrapping;
+                texture.repeat.set(this.width/2, this.height/2);
+            },
+            (xhr) => {
+                const percentComplete = (xhr.loaded / xhr.total) * 100;
+                console.log('墙体纹理加载进度:', percentComplete.toFixed(2) + '%');
+            },
+            (error) => {
+                console.error('墙体纹理加载失败:', error);
+            }
+        );
         
         // 创建材质
         this.material = new THREE.MeshStandardMaterial({
             map: wallTexture,
             roughness: 0.7,
-            metalness: 0.3
+            metalness: 0.3,
+            color: this.color // 添加默认颜色
         });
 
         // 创建网格

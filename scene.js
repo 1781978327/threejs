@@ -90,7 +90,8 @@ class SceneManager {
             const groundMaterial = new THREE.MeshStandardMaterial({
                 map: mapTexture,
                 roughness: 0.8,
-                metalness: 0.2
+                metalness: 0.2,
+                color: 0x90EE90 // 添加默认颜色
             });
             const ground = new THREE.Mesh(groundGeometry, groundMaterial);
             ground.rotation.x = -Math.PI / 2;
